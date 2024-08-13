@@ -52,7 +52,6 @@ if __name__ == '__main__':
 
     print("Ratio %s" % getRatio(prices["ABC"], price["DEF"]))
 
-     
     my_car = Car()
     print("I'm a car!")
     while True:
