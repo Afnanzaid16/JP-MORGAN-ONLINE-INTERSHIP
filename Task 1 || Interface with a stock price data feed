@@ -1,73 +1,38 @@
-class Car:
+import json
+import urllib.request
+import random
 
-    def __init__(self, speed=0):
-        self.speed = speed
-        self.odometer = 0
-        self.time = 0
+def getDataPoint(quote):
+    """Produce all of the needed values to generate a datapoint."""
+    stock = quote['stock']
+    bid_price = float(quote['top_bid']['price'])
+    ask_price = float(quote['top_ask']['price'])
+    price = (bid_price + ask_price) / 2
+    return stock, bid_price, ask_price, price
 
-    def accelerate(self):
-        self.speed += 5
+def getRatio(price_a, price_b):
+    """Get the ratio of price_a and price_b."""
+    if price_b == 0:
+        # Avoid division by zero
+        return None
+    return price_a / price_b
 
-    def brake(self):
-        self.speed -= 5
-
-    def step(self):
-        self.odometer += self.speed
-        self.time += 1
-
-    def average_speed(self):
-        return self.odometer / self.time
-
-    def getDataPoint(quote):
-      """produce all of the needed values to generate a datapoint """
-      """-----------------update this function-------------------"""
-      stock=quote['stock']
-      bid_price = float(quote['top_bid']['price'])
-      ask_price = float(quote['top_ask']['price'])
-      price=(bid_price + ask+price)/2
-      return stock, bid_price , ask_price, price
-
-
-    def getRatio(price_a, price_b):
-      """ get ratio of price_a and price_b"""
-      """--------------update this function------------------"""
-      """also create some unit tests for this function in client_test.py"""
-      if (price_b==0):
-        #when price_b is 0 avoid throwing zerodivisionerror
-        return
-      return price_a/price_b
-
-
-# Main
+# Main for Stock Data Handling
 if __name__ == '__main__':
-    #quary the price once every N seconds.
-    for _ in iter(range(N)):
-      quotes=json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
-      """------------------update to get the ratio-------------------------"""
-      price={}
-      for quote iin quotes:
-        stock,bid_price,ask_price,price=getDataPoint(quote)
-        prices[stock]=price
-        print("Quoted %s at (bid:%s, ask:%s, price:%s)" % (stock, bid_price, ask_price,price))
+    QUERY = "http://some_api_endpoint?random={}"  # Replace with actual API endpoint
+    N = 10  # Number of times to query
 
-    print("Ratio %s" % getRatio(prices["ABC"], price["DEF"]))
+    prices = {}
+    for _ in range(N):
+        quotes = json.loads(urllib.request.urlopen(QUERY.format(random.random())).read())
+        for quote in quotes:
+            stock, bid_price, ask_price, price = getDataPoint(quote)
+            prices[stock] = price
+            print(f"Quoted {stock} at (bid:{bid_price}, ask:{ask_price}, price:{price})")
 
-    my_car = Car()
-    print("I'm a car!")
-    while True:
-        action = input("What should I do? [A]ccelerate, [B]rake, "
-                        "show [O]dometer, or show average [S]peed?").upper()
-        if action not in "ABOS" or len(action) != 1:
-            print("I don't know how to do that")
-            continue
-        if action == 'A':
-            my_car.accelerate()
-            print("Accelerating...")
-        elif action == 'B':
-            my_car.brake()
-            print("Braking...")
-        elif action == 'O':
-            print("The car has driven {} kilometers".format(my_car.odometer))
-        elif action == 'S':
-            print("The car's average speed was {} kph".format(my_car.average_speed()))
-        my_car.step()
+    ratio = getRatio(prices.get("ABC"), prices.get("DEF"))
+    if ratio is not None:
+        print(f"Ratio {ratio}")
+    else:
+        print("Could not calculate ratio due to division by zero")
+
